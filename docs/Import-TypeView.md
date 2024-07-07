@@ -49,23 +49,34 @@ This will be prepended to the type name, and followed by a period.
 |----------|--------|--------|---------------------|-------|
 |`[String]`|false   |2       |true (ByPropertyName)|Prefix |
 
+#### **Command**
+Any number of commands to import.
+These commands will converted into ScriptMethods.
+Each ScriptMethod will it's original command name, within the typename `Commands`.
+(if -Namespace is provided, the namespace will be prepended to the typename)
+(only functions are currently supported)
+
+|Type          |Required|Position|PipelineInput        |Aliases |
+|--------------|--------|--------|---------------------|--------|
+|`[PSObject[]]`|false   |3       |true (ByPropertyName)|Commands|
+
 #### **ExcludeFilePath**
 Any file paths to exclude.
 
 |Type          |Required|Position|PipelineInput        |
 |--------------|--------|--------|---------------------|
-|`[PSObject[]]`|false   |3       |true (ByPropertyName)|
+|`[PSObject[]]`|false   |4       |true (ByPropertyName)|
 
 #### **TextFileType**
 A pattern describing the types of files that will embedded as constant note properties containing the file's text.
 
 |Type          |Required|Position|PipelineInput        |Aliases        |
 |--------------|--------|--------|---------------------|---------------|
-|`[PSObject[]]`|false   |4       |true (ByPropertyName)|TextFilePattern|
+|`[PSObject[]]`|false   |5       |true (ByPropertyName)|TextFilePattern|
 
 ---
 
 ### Syntax
 ```PowerShell
-Import-TypeView [-FilePath] <String[]> [-Deserialized] [[-Namespace] <String>] [[-ExcludeFilePath] <PSObject[]>] [[-TextFileType] <PSObject[]>] [<CommonParameters>]
+Import-TypeView [-FilePath] <String[]> [-Deserialized] [[-Namespace] <String>] [[-Command] <PSObject[]>] [[-ExcludeFilePath] <PSObject[]>] [[-TextFileType] <PSObject[]>] [<CommonParameters>]
 ```
