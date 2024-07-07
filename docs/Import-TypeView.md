@@ -2,13 +2,17 @@ Import-TypeView
 ---------------
 
 ### Synopsis
-Imports a Type View
+Imports Type Views
 
 ---
 
 ### Description
 
-Imports a Type View, defined in a external file.
+Imports one or more Type Views from a directory (and an optional list of commands).
+
+This creates a .types.ps1xml file that can be used to extend the type system of PowerShell.
+
+Each file in the directory will be treated as a property or method of a type.
 
 ---
 
@@ -32,7 +36,7 @@ The path containing type information.
 
 |Type        |Required|Position|PipelineInput        |Aliases |
 |------------|--------|--------|---------------------|--------|
-|`[String[]]`|true    |1       |true (ByPropertyName)|FullName|
+|`[String[]]`|false   |1       |true (ByPropertyName)|FullName|
 
 #### **Deserialized**
 If set, will generate an identical typeview for the deserialized form of each typename.
@@ -78,5 +82,5 @@ A pattern describing the types of files that will embedded as constant note prop
 
 ### Syntax
 ```PowerShell
-Import-TypeView [-FilePath] <String[]> [-Deserialized] [[-Namespace] <String>] [[-Command] <PSObject[]>] [[-ExcludeFilePath] <PSObject[]>] [[-TextFileType] <PSObject[]>] [<CommonParameters>]
+Import-TypeView [[-FilePath] <String[]>] [-Deserialized] [[-Namespace] <String>] [[-Command] <PSObject[]>] [[-ExcludeFilePath] <PSObject[]>] [[-TextFileType] <PSObject[]>] [<CommonParameters>]
 ```
