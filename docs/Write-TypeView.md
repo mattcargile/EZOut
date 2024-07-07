@@ -86,8 +86,15 @@ These will become ScriptMethods.
 
 #### **DefaultDisplay**
 The default display.
-If only one propertry is used, this will set the default display property.
-If more than one property is used, this will set the default display member set.
+This is the default set of properties to display if no formatter is specified.
+
+|Type        |Required|Position|PipelineInput|
+|------------|--------|--------|-------------|
+|`[String[]]`|false   |named   |false        |
+
+#### **DefaultKey**
+The default key property set.
+This is the set of properties that will be used as the key for the object.
 
 |Type        |Required|Position|PipelineInput|
 |------------|--------|--------|-------------|
@@ -154,5 +161,5 @@ If set, will generate an identical typeview for the deserialized form of each ty
 
 ### Syntax
 ```PowerShell
-Write-TypeView [-TypeName] <String[]> [-ScriptMethod <IDictionary>] [-ScriptProperty <IDictionary>] [-NoteProperty <IDictionary>] [-AliasProperty <IDictionary>] [-EventGenerator <IDictionary>] [-EventName <String[]>] [-DefaultDisplay <String[]>] [-IdProperty <String>] [-SerializationDepth <Int32>] [-Reserializer <Type>] [-PropertySet <IDictionary>] [-HideProperty <String[]>] [-Deserialized] [<CommonParameters>]
+Write-TypeView [-TypeName] <String[]> [-ScriptMethod <IDictionary>] [-ScriptProperty <IDictionary>] [-NoteProperty <IDictionary>] [-AliasProperty <IDictionary>] [-EventGenerator <IDictionary>] [-EventName <String[]>] [-DefaultDisplay <String[]>] [-DefaultKey <String[]>] [-IdProperty <String>] [-SerializationDepth <Int32>] [-Reserializer <Type>] [-PropertySet <IDictionary>] [-HideProperty <String[]>] [-Deserialized] [<CommonParameters>]
 ```
