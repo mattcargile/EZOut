@@ -4,7 +4,7 @@
     .Synopsis
         Imports a Type View
     .Description
-        Imports a Type View, defined in a external file .method or .property file
+        Imports a Type View, defined in a external file.
     .Link
         Write-TypeView
     .Example
@@ -111,7 +111,7 @@
 
                             # Congratulations!  These very few lines are all it takes to enable inheritance!
                         }
-                    }                    
+                    }
                 }
             }
         }
@@ -333,7 +333,12 @@ data { $([ScriptBlock]::Create($fileText)) }
                                 $aliasProperty = (& $dataScriptBlock) -as [Collections.IDictionary]
                             } elseif (-not $noteProperty.Contains($itemName)) {
                                 # otherwise, we load it in a ScriptProperty
-                                $scriptPropertyGet[$itemName] = $dataScriptBlock
+                                $scriptPropertyGet[$itemName] = @"
+`$dataObjects = $dataScriptBlock
+# Overwrite our own static property with an instance property.
+`$this.psobject.properties.add([PSNoteProperty]::new('$itemName', `$dataObjects), `$true)
+return `$dataObjects
+"@
                             }
                         }
                         #endregion .psd1 Files
@@ -342,9 +347,12 @@ data { $([ScriptBlock]::Create($fileText)) }
                             # Xml content is cached inline in a ScriptProperty and returned casted to [xml]
                             if (-not $noteProperty.Contains($itemName)) {
                             $scriptPropertyGet[$itemName] = [ScriptBlock]::Create(@"
-[xml]@'
+`$fileTextAsXml = [xml]@'
 $fileText
 '@
+# Overwrite our own static property with an instance property.
+`$this.psobject.properties.add([PSNoteProperty]::new('$itemName', `$fileTextAsXml), `$true)
+return `$fileTextAsXml
 "@)
                             }
                         }
@@ -354,9 +362,12 @@ $fileText
                             # Json files are piped to ConvertFrom-Json
                             if (-not $noteProperty.Contains($itemName)) {
                             $scriptPropertyGet[$itemName] = [ScriptBlock]::Create(@"
-@'
+`$convertedFromJson = @'
 $fileText
 '@ | ConvertFrom-Json
+# Overwrite our own static property with an instance property.
+`$this.psobject.properties.add([PSNoteProperty]::new('$itemName', `$convertedFromJson), `$true)
+return `$convertedFromJson
 "@)
                             }
                         }
@@ -366,9 +377,12 @@ $fileText
                         .clixml {
                             if (-not $noteProperty.Contains($itemName)) {
                             $scriptPropertyGet[$itemName] = [ScriptBlock]::Create(@"
-[Management.Automation.PSSerializer]::Deserialize(@'
+`$deserialized = [Management.Automation.PSSerializer]::Deserialize(@'
 $fileText
 '@)
+# Overwrite our own static property with an instance property.
+`$this.psobject.properties.add([PSNoteProperty]::new('$itemName', `$deserialized), `$true)
+return `$deserialized
 "@)
                             }
                         }
@@ -472,7 +486,7 @@ $stream.Dispose()
             }
 
             if ($WriteTypeViewSplat.Count -gt 1) {
-                $WriteTypeViewSplat.HideProperty = $hideProperty
+                $WriteTypeViewSplat.HideProperty = $hideProperty                
                 Write-TypeView @WriteTypeViewSplat
             }
         }
