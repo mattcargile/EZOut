@@ -174,10 +174,8 @@
                     # (this can simplify development of ScriptProperties, Methods, and other files).
                 }
 
-                # Skip format/view files (this allows them to be in the same directory as types, if that is preferred)
-                if ($item.Name -match '\.(?>format|view|control)\.ps1$') {
-                    continue
-                }                
+                # Do not Skip format/view/control files (this allows them to be in the same directory as types, if that is preferred)
+                $isFormatFile = $item.Name -match '\.(?>format|view|control)\.ps1$'
                 
                 $itemName =
                     $item.Name.Substring(0, $item.Name.Length - $item.Extension.Length)
@@ -193,6 +191,7 @@
                     $isScript = $false
                 }
 
+                # Skip empty scripts, since they will cause the .types.ps1xml to not load.
                 if ($isScript -and -not ($scriptBlock -replace '\s')) {
                     continue
                 }
