@@ -18,7 +18,14 @@
     $FilePath,
     
     # If set, will generate an identical typeview for the deserialized form of each typename.
+    [Parameter(ValueFromPipelineByPropertyName)]
     [switch]$Deserialized,
+
+    # The namespace to use for all imported types.
+    # This will be prepended to the type name, and followed by a period.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('Prefix')]
+    [string]$Namespace,
 
     # Any file paths to exclude.
     [Parameter(ValueFromPipelineByPropertyName)]
@@ -129,9 +136,10 @@
 
         :nextMember foreach ($mt in $membersByType.GetEnumerator() | Sort-Object Key) {    # Walk thru the members by type
             $WriteTypeViewSplat = @{                         # and create a hashtable to splat.
-                TypeName = $mt.Key
+                TypeName = if ($Namespace) { "$Namespace.$($mt.Key)"} else {$mt.Key}
                 Deserialized = $Deserialized
             }
+            $OriginalParameterCount = $WriteTypeViewSplat.Count
             # Then, sort the values by name and by if it comes from this directory.
             $sortedValues = $mt.Value | Sort-Object Name, { $_.Directory.Name -ne $mt.Key }
 
@@ -484,7 +492,8 @@ $stream.Dispose()
                 $WriteTypeViewSplat.EventName = $eventNames
             }
 
-            if ($WriteTypeViewSplat.Count -gt 1) {
+            # If we have added any parameters to splat, we will write the type view.
+            if ($WriteTypeViewSplat.Count -gt $OriginalParameterCount) {
                 $WriteTypeViewSplat.HideProperty = $hideProperty                
                 Write-TypeView @WriteTypeViewSplat
             }
