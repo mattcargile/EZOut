@@ -3,11 +3,42 @@
   <Type>
     <Name>EZOut.Invisible</Name>
     <Members>
+      <ScriptMethod>
+        <Name>EZOut.Invisible.format</Name>
+        <Script>
+                        Write-FormatView -TypeName EZOut.Invisible -Action {
+    $null
+}
+    
+                    </Script>
+      </ScriptMethod>
     </Members>
   </Type>
   <Type>
     <Name>Hello.EZOut</Name>
     <Members>
+      <ScriptMethod>
+        <Name>Hello.EZOut.format</Name>
+        <Script>
+                        # If there is a .PSTypeName.txt file in the same directory, $PSTypeName will be set
+
+if (-not $PSTypeName) {  
+    $PSTypeName = "Hello.EZOut", "Hi.EZOut"
+}
+
+Write-FormatView -TypeName $PSTypeName -Action {
+    if ($_.Message) {
+        $_.Message
+    } else {
+        "Hello World"
+    }
+}
+
+Write-FormatView -TypeName $PSTypeName -Property Message
+
+Write-FormatView -TypeName $PSTypeName -Property Message -AsList
+                    </Script>
+      </ScriptMethod>
       <ScriptMethod>
         <Name>SayHello</Name>
         <Script>
@@ -34,6 +65,28 @@ $this.'.Message'
   <Type>
     <Name>Hi.EZOut</Name>
     <Members>
+      <ScriptMethod>
+        <Name>Hello.EZOut.format</Name>
+        <Script>
+                        # If there is a .PSTypeName.txt file in the same directory, $PSTypeName will be set
+
+if (-not $PSTypeName) {  
+    $PSTypeName = "Hello.EZOut", "Hi.EZOut"
+}
+
+Write-FormatView -TypeName $PSTypeName -Action {
+    if ($_.Message) {
+        $_.Message
+    } else {
+        "Hello World"
+    }
+}
+
+Write-FormatView -TypeName $PSTypeName -Property Message
+
+Write-FormatView -TypeName $PSTypeName -Property Message -AsList
+                    </Script>
+      </ScriptMethod>
       <ScriptMethod>
         <Name>SayHello</Name>
         <Script>
