@@ -187,6 +187,9 @@ if (`$Eventhandler -is [Management.Automation.PSEventSubscriber]) {
         if ($Deserialized -and $TypeName -notlike 'Deserialized.*') {
             $typeName =
                 foreach ($tn in $TypeName) {
+                    if (-not ("<TypeName>$tn</TypeName>" -as [xml])) {
+                        $tn = [Security.SecurityElement]::Escape($tn)
+                    }
                     $tn, "Deserialized.$tn"
                 }
         }
