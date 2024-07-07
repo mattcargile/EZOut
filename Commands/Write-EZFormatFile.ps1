@@ -77,10 +77,18 @@ if ($formatting) {
 $types = @(
     # Add your own Write-TypeView statements here
     # or declare them in the 'Types' directory
+    $ImportTypeViewOptions = [Ordered]@{}
+    
+    $myModuleIsLoaded = Get-Module $myModuleName
+
+    if ($myModuleIsLoaded) {        
+        $ImportTypeViewOptions.Commands = @($myModuleIsLoaded.ExportedFunctions.Values)
+    }
+
+    # The following code will import all TypeView files in the Types directory (the default)
     Join-Path $myRoot Types |
         Get-Item -ea ignore |
         Import-TypeView
-
 )
 
 if ($types) {
