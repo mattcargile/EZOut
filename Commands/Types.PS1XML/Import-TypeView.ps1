@@ -27,6 +27,16 @@
     [Alias('Prefix')]
     [string]$Namespace,
 
+    # Any number of commands to import.
+    # These commands will converted into ScriptMethods.
+    # Each ScriptMethod will it's original command name, within the typename `Commands`.
+    # (if -Namespace is provided, the namespace will be prepended to the typename)
+    # (only functions are currently supported)
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [Alias('Commands')]
+    [PSObject[]]
+    $Command,
+
     # Any file paths to exclude.
     [Parameter(ValueFromPipelineByPropertyName)]
     [SupportsWildcards()]
@@ -42,6 +52,21 @@
     )
 
     process {
+
+        # Commands are converted into ScriptMethods first.
+        if ($Command) {
+            $writeTypeViewSplat = @{
+                TypeName = if ($Namespace) { "$Namespace.Commands" } else { 'Commands' }
+                ScriptMethod = [Ordered]@{}                
+            }
+            foreach ($cmd in $command) {
+                if ($cmd -is [Management.Automation.FunctionInfo]) {
+                    $writeTypeViewSplat.ScriptMethod[$cmd.Name] = $cmd.ScriptBlock
+                }
+            }
+            Write-TypeView @writeTypeViewSplat
+        }
+
 
         <#
         In order to make something like inheritance work,
@@ -132,8 +157,7 @@
                 }
             }
             $membersByType.Remove('*') # then remove it (so we don't do it twice).
-        }
-
+        }        
         :nextMember foreach ($mt in $membersByType.GetEnumerator() | Sort-Object Key) {    # Walk thru the members by type
             $WriteTypeViewSplat = @{                         # and create a hashtable to splat.
                 TypeName = if ($Namespace) { "$Namespace.$($mt.Key)"} else {$mt.Key}
@@ -156,7 +180,7 @@
 
             Starting a file with . will hide the property.
 
-            It should be noted that hidden ScriptMethods are not "private" Methods
+            It should be noted that hidden ScriptMethods are not "private" Methods, they are just hidden.
             (though neither are C# private Methods, if you use Reflection).
 
             #>
