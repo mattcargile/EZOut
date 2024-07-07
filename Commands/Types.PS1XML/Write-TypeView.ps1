@@ -100,9 +100,12 @@
     [string[]]$EventName,
 
     # The default display.
-    # If only one propertry is used, this will set the default display property.
-    # If more than one property is used, this will set the default display member set.
+    # This is the default set of properties to display if no formatter is specified.    
     [string[]]$DefaultDisplay,
+
+    # The default key property set.
+    # This is the set of properties that will be used as the key for the object.
+    [string[]]$DefaultKey,
 
     # The ID property
     [string]$IdProperty,
@@ -250,6 +253,7 @@ if (`$Eventhandler -is [Management.Automation.PSEventSubscriber]) {
             if ($psBoundParameters.ContainsKey('SerializationDepth') -or
                 $psBoundParameters.ContainsKey('IdProperty') -or
                 $psBoundParameters.ContainsKey('DefaultDisplay') -or
+                $psBoundParameters.ContainsKey('DefaultKey') -or
                 $psBoundParameters.ContainsKey('Reserializer')) {
                 $defaultDisplayXml = if ($psBoundParameters.ContainsKey('DefaultDisplay')) {
                     if ($DebugBuild) {
@@ -259,6 +263,20 @@ if (`$Eventhandler -is [Management.Automation.PSEventSubscriber]) {
                             <Name>") + "</Name>"
     "                <PropertySet>
                         <Name>DefaultDisplayPropertySet</Name>
+                        <ReferencedProperties>
+                            $referencedProperties
+                        </ReferencedProperties>
+                    </PropertySet>
+    "
+                }
+                $defaultKeyXml = if ($psBoundParameters.ContainsKey('DefaultKey')) {
+                    if ($DebugBuild) {
+                        Update-TypeData @updateSplat -DefaultKeyPropertySet $DefaultKey
+                    }
+                    $referencedProperties = "<Name>" + ($DefaultKey -join "</Name>
+                            <Name>") + "</Name>"
+    "                <PropertySet>
+                        <Name>DefaultKeyPropertySet</Name>
                         <ReferencedProperties>
                             $referencedProperties
                         </ReferencedProperties>
@@ -293,9 +311,14 @@ if (`$Eventhandler -is [Management.Automation.PSEventSubscriber]) {
                 <MemberSet>
                     <Name>PSStandardMembers</Name>
                     <Members>
-                        $defaultDisplayXml
-                        $serializationDepthXml
-                        $reserializerXml
+                        $(
+                            @(
+                                $defaultDisplayXml
+                                $DefaultKeyXml
+                                $serializationDepthXml
+                                $reserializerXml
+                            ) -ne $null -join [Environment]::NewLine
+                        )
                     </Members>
                 </MemberSet>
                 "
