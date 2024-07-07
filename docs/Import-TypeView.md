@@ -8,7 +8,7 @@ Imports a Type View
 
 ### Description
 
-Imports a Type View, defined in a external file .method or .property file
+Imports a Type View, defined in a external file.
 
 ---
 
