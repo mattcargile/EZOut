@@ -2,9 +2,13 @@
 {
     <#
     .Synopsis
-        Imports a Type View
+        Imports Type Views
     .Description
-        Imports a Type View, defined in a external file.
+        Imports one or more Type Views from a directory (and an optional list of commands).
+
+        This creates a .types.ps1xml file that can be used to extend the type system of PowerShell.
+
+        Each file in the directory will be treated as a property or method of a type.        
     .Link
         Write-TypeView
     .Example
@@ -12,7 +16,7 @@
     #>
     param(
     # The path containing type information.
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('FullName')]
     [string[]]
     $FilePath,
@@ -58,8 +62,8 @@
             $writeTypeViewSplat = @{
                 TypeName = if ($Namespace) { "$Namespace.Commands" } else { 'Commands' }
                 ScriptMethod = [Ordered]@{}                
-            }
-            foreach ($cmd in $command) {
+            }            
+            foreach ($cmd in $command) {                
                 if ($cmd -is [Management.Automation.FunctionInfo]) {
                     $writeTypeViewSplat.ScriptMethod[$cmd.Name] = $cmd.ScriptBlock
                 }
