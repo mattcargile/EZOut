@@ -37,27 +37,35 @@ The path containing type information.
 #### **Deserialized**
 If set, will generate an identical typeview for the deserialized form of each typename.
 
-|Type      |Required|Position|PipelineInput|
-|----------|--------|--------|-------------|
-|`[Switch]`|false   |named   |false        |
+|Type      |Required|Position|PipelineInput        |
+|----------|--------|--------|---------------------|
+|`[Switch]`|false   |named   |true (ByPropertyName)|
+
+#### **Namespace**
+The namespace to use for all imported types.
+This will be prepended to the type name, and followed by a period.
+
+|Type      |Required|Position|PipelineInput        |Aliases|
+|----------|--------|--------|---------------------|-------|
+|`[String]`|false   |2       |true (ByPropertyName)|Prefix |
 
 #### **ExcludeFilePath**
 Any file paths to exclude.
 
 |Type          |Required|Position|PipelineInput        |
 |--------------|--------|--------|---------------------|
-|`[PSObject[]]`|false   |2       |true (ByPropertyName)|
+|`[PSObject[]]`|false   |3       |true (ByPropertyName)|
 
 #### **TextFileType**
 A pattern describing the types of files that will embedded as constant note properties containing the file's text.
 
 |Type          |Required|Position|PipelineInput        |Aliases        |
 |--------------|--------|--------|---------------------|---------------|
-|`[PSObject[]]`|false   |3       |true (ByPropertyName)|TextFilePattern|
+|`[PSObject[]]`|false   |4       |true (ByPropertyName)|TextFilePattern|
 
 ---
 
 ### Syntax
 ```PowerShell
-Import-TypeView [-FilePath] <String[]> [-Deserialized] [[-ExcludeFilePath] <PSObject[]>] [[-TextFileType] <PSObject[]>] [<CommonParameters>]
+Import-TypeView [-FilePath] <String[]> [-Deserialized] [[-Namespace] <String>] [[-ExcludeFilePath] <PSObject[]>] [[-TextFileType] <PSObject[]>] [<CommonParameters>]
 ```
