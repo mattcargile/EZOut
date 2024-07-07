@@ -77,15 +77,6 @@ if ($formatting) {
 $types = @(
     # Add your own Write-TypeView statements here
     # or declare them in the 'Types' directory
-    $ImportTypeViewOptions = [Ordered]@{}
-    
-    $myModuleIsLoaded = Get-Module $myModuleName
-
-    if ($myModuleIsLoaded) {        
-        $ImportTypeViewOptions.Commands = @($myModuleIsLoaded.ExportedFunctions.Values)
-    }
-
-    # The following code will import all TypeView files in the Types directory (the default)
     Join-Path $myRoot Types |
         Get-Item -ea ignore |
         Import-TypeView
@@ -95,6 +86,12 @@ if ($types) {
     $myTypesFilePath = Join-Path $destinationRoot "$myModuleName.types.ps1xml"
     # You can also output to multiple paths by passing a hashtable to -OutputPath.
     $types | Out-TypeData -OutputPath $myTypesFilePath
+}
+
+$MyModuleIsLoaded = Get-Module $MyModuleName
+if ($MyModuleIsLoaded) {
+    $myCommandTypesFilePath = Join-Path $destinationRoot "$myModuleName.commands.types.ps1xml"
+    Import-TypeView -Commands @($MyModuleIsLoaded.ExportedFunctions.Values) | Out-TypeData
 }
 Pop-Location
 '@
