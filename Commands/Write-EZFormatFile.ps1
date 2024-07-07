@@ -91,7 +91,7 @@ if ($types) {
 $MyModuleIsLoaded = Get-Module $MyModuleName
 if ($MyModuleIsLoaded) {
     $myCommandTypesFilePath = Join-Path $destinationRoot "$myModuleName.commands.types.ps1xml"
-    Import-TypeView -Commands @($MyModuleIsLoaded.ExportedFunctions.Values) | Out-TypeData -OutputPath $myCommandTypesFilePath
+    Import-TypeView -Commands @($MyModuleIsLoaded.ExportedFunctions.Values) -Namespace $myModuleName | Out-TypeData -OutputPath $myCommandTypesFilePath
 }
 Pop-Location
 '@
