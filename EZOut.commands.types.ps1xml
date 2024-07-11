@@ -6073,6 +6073,190 @@ $([Security.SecurityElement]::Escape($VisibilityCondition[$c]))
                     </Script>
       </ScriptMethod>
       <ScriptMethod>
+        <Name>Write-FormatSelectionCondition</Name>
+        <Script>
+                        
+    &lt;#
+    .SYNOPSIS
+        Writes a selection condition.
+    .DESCRIPTION
+        Writes a formatting selection condition.
+    .NOTES    
+        PowerShell formatting can be conditional.
+
+        A condition is expressed an `&lt;SelectionCondition&gt;` element, which must be inside of an `&lt;EntrySelectedBy&gt;` element..
+
+        Multiple selection conditions are permitted in a single `&lt;EntrySelectedBy&gt;` element.  
+        
+        They will be evaluated using `-or` (if any of the conditions is true, the formatting will be applied).
+    #&gt;
+    param(
+    # The type name of the selection set.
+    [Parameter(ValueFromPipelineByPropertyName)]    
+    [string]
+    $TypeName,
+
+    # The name of the selection set.
+    [Parameter(ValueFromPipelineByPropertyName)]
+    [string]
+    $SelectionSet,
+
+    # The type names in the selection set.    
+    [Alias('SelectionCondition')]
+    [ScriptBlock]
+    $ScriptBlock
+    )
+
+    begin {
+        # First, create a queue to hold the selection conditions
+        $selectionConditionQueue = [Collections.Queue]::new()
+    }
+    
+    process {
+        # Each selection condition is a separate XML element
+        $selectionConditionXml = [xml](@(
+            "&lt;SelectionCondition&gt;"
+                # Consisting of a typename
+                if ($TypeName) {
+                    if (-not ("&lt;TypeName&gt;$TypeName&lt;/TypeName&gt;" -as [xml])) {
+                        "&lt;TypeName&gt;$([Security.SecurityElement]::Escape($TypeName))&lt;/TypeName&gt;"
+                    } else {
+                        "&lt;TypeName&gt;$TypeName&lt;/TypeName&gt;"
+                    }
+                }
+                # or a selection set name
+                elseif ($SelectionSet) {
+                    if (-not ("&lt;SelectionSetName&gt;$SelectionSet&lt;/SelectionSetName&gt;" -as [xml])) {
+                        "&lt;SelectionSetName&gt;$([Security.SecurityElement]::Escape($SelectionSet))&lt;/SelectionSetName&gt;"
+                    } else {
+                        "&lt;SelectionSetName&gt;$SelectionSet&lt;/SelectionSetName&gt;"
+                    }
+                }
+                # and a script block.
+                # If no `-ScriptBlock` is provided,
+                if (-not $ScriptBlock) {
+                    # it is assumed to be `$true`.
+                    "&lt;ScriptBlock&gt;`$true&lt;/ScriptBlock&gt;"
+                } else {
+                    "&lt;ScriptBlock&gt;$([Security.SecurityElement]::Escape($ScriptBlock))&lt;/ScriptBlock&gt;"
+                }
+            "&lt;/SelectionCondition&gt;"
+        ) -join '')
+        if (-not $selectionConditionXml) { return }
+        # Save the XML to a string (for readablility),
+        $xOut=[IO.StringWriter]::new()
+        $selectionConditionXml.Save($xOut)
+        # and add the string to the queue (remove the XML declaration).
+        $selectionConditionQueue.Enqueue("$xOut" -replace '\&lt;\?xml.+?\?&gt;[\s\r\n]+')
+        $xOut.Dispose()
+    }
+
+    end {
+        # Finally, create an `&lt;EntrySelectedBy&gt;` element
+        $EntrySelectedByXml = @(
+            "&lt;EntrySelectedBy&gt;"
+            # containing all of the selection conditions
+            $selectionConditionQueue.ToArray()
+            "&lt;/EntrySelectedBy&gt;"
+        ) -join '' -as [xml]
+        # Save the XML to a string (for readablility),
+        $xOut=[IO.StringWriter]::new()
+        $EntrySelectedByXml.Save($xOut)
+        # and return the string (remove the XML declaration).
+        "$xOut" -replace '\&lt;\?xml.+?\?&gt;[\s\r\n]+'
+        $xOut.Dispose()
+    }
+
+                    </Script>
+      </ScriptMethod>
+      <ScriptMethod>
+        <Name>Write-FormatSelectionSet</Name>
+        <Script>
+                        
+    &lt;#
+    .SYNOPSIS
+        Writes a selection set.
+    .DESCRIPTION
+        Writes a format selection set.
+    .NOTES    
+        Formatting is commonly selected by a TypeName.
+        
+        It can also be selected by a group of type names, which is called a SelectionSet.
+
+        A few built-in formatters use selection sets, most notably the filesystem formatters.
+    .EXAMPLE
+        Write-FormatSelectionSet -Name 'FileSystemTypes' -TypeName 'System.IO.DirectoryInfo', 'System.IO.FileInfo'    
+    #&gt;
+    param(
+    # The name of the selection set.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
+    [Alias('SelectionSetName','SelectionSet')]
+    [string]
+    $Name,
+
+    # The type names in the selection set.
+    [Parameter(Mandatory,ValueFromPipelineByPropertyName)]
+    [string[]]
+    $TypeName
+    )
+
+    begin {
+        # First, create a queue to hold the selection sets.
+        $eachSelectionSet = [Collections.Queue]::new()
+    }
+    
+    process {
+        # Make sure the name and type names are XML-safe
+        $NameAsXml = "&lt;Name&gt;$Name&lt;/Name&gt;" -as [xml]
+        if (-not $NameAsXml) {
+            $Name = [Security.SecurityElement]::Escape($Name)
+        }
+        $TypeName = foreach ($tn in $TypeName) {
+            if (-not ("&lt;TypeName&gt;$tn&lt;/TypeName&gt;" -as [xml])) {
+                [Security.SecurityElement]::Escape($tn)
+            } else {
+                $tn
+            }
+        }
+
+        # Create the selection set XML
+        $selectionSetXml = [xml](@(
+            "&lt;SelectionSet&gt;"
+                # Consisting of a `&lt;Name&gt;`
+                "&lt;Name&gt;$Name&lt;/Name&gt;"                
+                "&lt;Types&gt;" # and a `&lt;Types&gt;` element
+                    foreach ($tn in $TypeName) {
+                        # (containing each `&lt;TypeName&gt;`)
+                        "&lt;TypeName&gt;$tn&lt;/TypeName&gt;"
+                    }
+                "&lt;/Types&gt;"
+            "&lt;/SelectionSet&gt;"
+        ) -join '')
+        if (-not $selectionSetXml) { return }
+        $xOut=[IO.StringWriter]::new()
+        $selectionSetXml.Save($xOut)
+        $eachSelectionSet.Enqueue("$xOut" -replace '\&lt;\?xml.+?\?&gt;[\s\r\n]+')
+        $xOut.Dispose()
+    }
+
+    end {
+        # Create the `&lt;SelectionSets&gt;` element
+        $selectionSetXml = @(
+            "&lt;SelectionSets&gt;"
+            # (containing each `&lt;SelectionSet&gt;`)
+            $eachSelectionSet.ToArray()
+            "&lt;/SelectionSets&gt;"
+        ) -join '' -as [xml]
+        $xOut=[IO.StringWriter]::new()
+        $selectionSetXml.Save($xOut)
+        # Write the XML to the pipeline as a string, removing the XML declaration.
+        "$xOut" -replace '\&lt;\?xml.+?\?&gt;[\s\r\n]+'
+        $xOut.Dispose()
+    }
+
+                    </Script>
+      </ScriptMethod>
+      <ScriptMethod>
         <Name>Write-FormatTableView</Name>
         <Script>
                         
