@@ -24,6 +24,10 @@
         'Write-FormatWideView',
         # Write-FormatViewExpression is used in custom actions and controls
         'Write-FormatViewExpression',
+        # Write-FormatSelectionSet is to create selection sets (groups of typenames)
+        'Write-FormatSelectionSet',
+        # Write-FormatSelectionCondition is to create selection conditions
+        'Write-FormatSelectionCondition',
         # Write-FormatTreeView is an advanced formatting control
         'Write-FormatTreeView',
         # Most other advanced format controls are extensions to Format-Object
