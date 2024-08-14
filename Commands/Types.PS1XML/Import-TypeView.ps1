@@ -83,8 +83,15 @@
 
 
         $membersByType = @{}
+        $CommonParentPath = $null
         foreach ($fp in $FilePath) {
             $filePathRoot = Get-Item -Path $fp
+            if (-not $filePathRoot) { continue}
+            if (-not $CommonParentPath) {
+                $CommonParentPath = $filePathRoot.Parent.FullName
+            } elseif ($CommonParentPath) {
+                $CommonParentPath | Split-Path -CommonPrefix $filePathRoot
+            }
             $filesBeneathRoot = Get-ChildItem -Recurse -Path $fp -Force
 
             :nextFile foreach ($fileBeneathRoot in $filesBeneathRoot) {
@@ -211,7 +218,7 @@
                 }
 
                 # Do not Skip format/view/control files (this allows them to be in the same directory as types, if that is preferred)
-                $isFormatFile = $item.Name -match '\.(?>format|view|control)\.ps1$'
+                $isFormatFile = $item.Name -match '\.(?>format|view|control)\.ps1$'                
                 
                 $itemName =
                     $item.Name.Substring(0, $item.Name.Length - $item.Extension.Length)
@@ -352,6 +359,12 @@
                             }
                         }
 
+                        .sql {
+                            if (-not $noteProperty.Contains($itemName)) # SQL files become note properties.
+                            {
+                                $noteProperty[$itemName] = $fileText
+                            }
+                        }
                         
                         #endregion .txt Files
                         #region .psd1 Files
@@ -406,7 +419,7 @@ return `$convertedFromJson
 "@)
                             }
                         }
-                        #endregion JSON files
+                        #endregion JSON files                        
                         #region CliXML files
                             # Clixml files are embedded into a ScriptProperty and Deserialized.
                         .clixml {
