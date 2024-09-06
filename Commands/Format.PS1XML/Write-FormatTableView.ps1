@@ -104,7 +104,7 @@ function Write-FormatTableView
 
     # If provided, will colorize all rows in a table, according to the script block.
     # If the script block returns a value, it will be treated either as an ANSI escape sequence or up to two hexadecimal colors
-    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [Alias('ColourRow')]
     [ScriptBlock]$ColorRow,
 
@@ -136,20 +136,21 @@ function Write-FormatTableView
 
     # If provided, the table view will only be used if the the typename includes this value.
     # This is distinct from the overall typename, and can be used to have different table views for different inherited objects.
-    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [string]
     $ViewTypeName,
 
     # If provided, the table view will only be used if the the typename is in a SelectionSet.
     # This is distinct from the overall typename, and can be used to have different table views for different inherited objects.
-    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [string]
     $ViewSelectionSet,
 
     # If provided, will selectively display items.
-    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [Parameter(ValueFromPipelineByPropertyName)]
     [ScriptBlock]
-    $ViewCondition)
+    $ViewCondition
+    )
 
     begin {
         $rowEntries = @()
@@ -158,9 +159,25 @@ function Write-FormatTableView
             if ($_ -is [scriptblock]) { "`$(`$Script:_LastCellStyle = `$(`$__ = `$_;. {$($_)};`$_ = `$__);`$Script:_LastCellStyle)"}
             else { "`$(`$Script:_LastCellStyle ='$($_)';`$Script:_LastCellStyle)" }
         }
+
+        $myParameterNames = @(($MyInvocation.MyCommand -as [Management.Automation.CommandMetadata]).Keys) -as [string[]]
     }
 
     process {
+        # ValueFromPipelineByPropertyName is great, but it is "sticky".
+        # Parameters that have been bound aren't "unbound" until a new value is provided.
+        # This means that if a parameter is not provided, it will keep the last value.
+        # And that's what we call an unexpected side effect.
+        # In order to avoid this, we walk over our list of parameter names
+        foreach ($parameterName in $myParameterNames) {
+            # if they are not in the bound parameters
+            if (-not $PSBoundParameters.ContainsKey($parameterName)) {
+                # we nullify them
+                try { $ExecutionContext.SessionState.PSVariable.Set($parameterName, $null) }
+                # and if we can't, we write a verbose message.
+                catch { Write-Verbose "Could not nullify '$parameterName': $_ " }
+            }
+        }
         $tableHeader = ''
         $rowColumns =
             @(for ($i =0; $i -lt $property.Count; $i++) {
