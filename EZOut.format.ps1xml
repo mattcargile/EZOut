@@ -53,6 +53,7 @@
       <TableControl>
         <TableHeaders>
           <TableColumnHeader>
+            <Label>Message</Label>
           </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
@@ -77,6 +78,7 @@
           <ListEntry>
             <ListItems>
               <ListItem>
+                <Label>Message</Label>
                 <PropertyName>Message</PropertyName>
               </ListItem>
             </ListItems>
