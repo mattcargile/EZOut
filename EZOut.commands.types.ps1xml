@@ -6028,17 +6028,17 @@ $([Security.SecurityElement]::Escape($VisibilityCondition[$c]))
                 $propCondition = if ($ConditionalProperty.$p) {
                     "&lt;ItemSelectionCondition&gt;&lt;ScriptBlock&gt;$([Security.SecurityElement]::Escape($ConditionalProperty.$p))&lt;/ScriptBlock&gt;&lt;/ItemSelectionCondition&gt;"
                 }
-                $label = ""
+                
+                $label = "&lt;Label&gt;$([Security.SecurityElement]::Escape($p))&lt;/Label&gt;"
                 # If there was an alias defined for this property, use it
-                if ($AliasProperty.$p -or $VirtualProperty.$p) {
-                    $label = "&lt;Label&gt;$p&lt;/Label&gt;"
+                if ($AliasProperty.$p -or $VirtualProperty.$p) {                
                     if ($VirtualProperty.$p) {
                         "&lt;ListItem&gt;$propCondition $label&lt;ScriptBlock&gt;$([Security.SecurityElement]::Escape($VirtualProperty.$p))&lt;/ScriptBlock&gt;$format&lt;/ListItem&gt;"
                     } else {
                         "&lt;ListItem&gt;$propCondition $label&lt;PropertyName&gt;$($AliasProperty.$p)&lt;/PropertyName&gt;$Format&lt;/ListItem&gt;"
                     }
                 } else {
-                    "&lt;ListItem&gt;$propCondition &lt;PropertyName&gt;$p&lt;/PropertyName&gt;$Format&lt;/ListItem&gt;"
+                    "&lt;ListItem&gt;$propCondition $label&lt;PropertyName&gt;$p&lt;/PropertyName&gt;$Format&lt;/ListItem&gt;"
                 }
             })
 
@@ -6578,10 +6578,9 @@ $([Security.SecurityElement]::Escape($VisibilityCondition[$c]))
                 if ($StyleProperty.$p) {
                     "&lt;!-- {ConditionalStyle:`"$([Security.SecurityElement]::Escape($StyleProperty.$p))`"}--&gt;"
                 }
-                $label = ""
-                # If there was an alias defined for this property, use it
-                if ($AliasProperty.$p -or $VirtualProperty.$p) {
-                    $label = "&lt;Label&gt;$p&lt;/Label&gt;"
+                $label = "&lt;Label&gt;$([Security.SecurityElement]::Escape($p))&lt;/Label&gt;"
+                # If there was an alias defined for this property, use it                
+                if ($AliasProperty.$p -or $VirtualProperty.$p) {                    
                     if ($VirtualProperty.$p) {
                         "&lt;TableColumnItem&gt;&lt;ScriptBlock&gt;$([Security.SecurityElement]::Escape($VirtualProperty.$p))&lt;/ScriptBlock&gt;$format&lt;/TableColumnItem&gt;"
                     } else {
