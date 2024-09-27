@@ -244,17 +244,17 @@
                 $propCondition = if ($ConditionalProperty.$p) {
                     "<ItemSelectionCondition><ScriptBlock>$([Security.SecurityElement]::Escape($ConditionalProperty.$p))</ScriptBlock></ItemSelectionCondition>"
                 }
-                $label = ""
+                
+                $label = "<Label>$([Security.SecurityElement]::Escape($p))</Label>"
                 # If there was an alias defined for this property, use it
-                if ($AliasProperty.$p -or $VirtualProperty.$p) {
-                    $label = "<Label>$p</Label>"
+                if ($AliasProperty.$p -or $VirtualProperty.$p) {                
                     if ($VirtualProperty.$p) {
                         "<ListItem>$propCondition $label<ScriptBlock>$([Security.SecurityElement]::Escape($VirtualProperty.$p))</ScriptBlock>$format</ListItem>"
                     } else {
                         "<ListItem>$propCondition $label<PropertyName>$($AliasProperty.$p)</PropertyName>$Format</ListItem>"
                     }
                 } else {
-                    "<ListItem>$propCondition <PropertyName>$p</PropertyName>$Format</ListItem>"
+                    "<ListItem>$propCondition $label<PropertyName>$p</PropertyName>$Format</ListItem>"
                 }
             })
 

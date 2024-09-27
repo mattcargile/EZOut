@@ -305,10 +305,9 @@ function Write-FormatTableView
                 if ($StyleProperty.$p) {
                     "<!-- {ConditionalStyle:`"$([Security.SecurityElement]::Escape($StyleProperty.$p))`"}-->"
                 }
-                $label = ""
-                # If there was an alias defined for this property, use it
-                if ($AliasProperty.$p -or $VirtualProperty.$p) {
-                    $label = "<Label>$p</Label>"
+                $label = "<Label>$([Security.SecurityElement]::Escape($p))</Label>"
+                # If there was an alias defined for this property, use it                
+                if ($AliasProperty.$p -or $VirtualProperty.$p) {                    
                     if ($VirtualProperty.$p) {
                         "<TableColumnItem><ScriptBlock>$([Security.SecurityElement]::Escape($VirtualProperty.$p))</ScriptBlock>$format</TableColumnItem>"
                     } else {
